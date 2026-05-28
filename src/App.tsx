@@ -632,6 +632,9 @@ function ViewAITest() {
  const [chatMessages, setChatMessages] = useState<{role: 'user' | 'ai', text: string}[]>([]);
  const [chatInput, setChatInput] = useState('');
  const [userPoints, setUserPoints] = useState('');
+ 
+ // State για την παρακολούθηση της κλήσης του AI Server
+ const [isAiLoading, setIsAiLoading] = useState(false);
 
  const handleAnswer = (val: number) => {
  const cat = RIASEC_QUESTIONS[qIndex].cat;
@@ -667,17 +670,62 @@ function ViewAITest() {
  setStep('chat');
  };
 
- const handleSendMessage = () => {
- if (!chatInput.trim()) return;
- setChatMessages(prev => [...prev, { role: 'user', text: chatInput }]);
- setChatInput('');
- 
- // Mock AI reply
- setTimeout(() => {
- const pointConstraintText = userPoints ? ` Με όριο τα ${userPoints} μόρια,` : '';
- setChatMessages(prev => [...prev, { role: 'ai', text: `Ακούγεται πολύ ενδιαφέρον!${pointConstraintText} θα σου πρότεινα να κοιτάξεις το ΔΕΤ ή συναφή τμήματα. Θέλεις να δούμε τα στατιστικά εισαγωγής τους;` }]);
- }, 1000);
- };
+ // Η πραγματική κλήση προς το FastAPI backend
+ const handleSendMessage = async () => {
+  if (!chatInput.trim()) return;
+  const userText = chatInput;
+  setChatMessages(prev => [...prev, { role: 'user', text: userText }]);
+  setChatInput('');
+  setIsAiLoading(true);
+
+  try {
+      const payload = { 
+        student_data: `Συνομιλία μαθητή: "${userText}". Μόρια μαθητή: ${userPoints || 'Άγνωστα'}.` 
+      };
+      console.log("Δεδομένα που στέλνονται:", payload);
+
+      const response = await fetch('http://localhost:8000/api/generate-report', {
+        method: 'POST',
+        headers: { 
+          'Accept': 'application/json',
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        // Διαβάζουμε το ακριβές μήνυμα (detail) του FastAPI
+        const errorDetails = await response.text();
+        console.error("Ανάλυση Σφάλματος Backend:", errorDetails);
+        throw new Error(`HTTP ${response.status} - ${errorDetails}`);
+      }
+      
+      const data = await response.json();
+    
+    let aiReply = "";
+    if (data.raw_text) {
+      aiReply = data.raw_text;
+    } else {
+      aiReply = `${data.psychometric_analysis}\n\n`;
+      if (data.top_matches && data.top_matches.length > 0) {
+        aiReply += `🎯 Προτεινόμενες Σχολές:\n`;
+        data.top_matches.forEach((m: any) => {
+          aiReply += `• ${m.title}: ${m.reasoning}\n`;
+        });
+      }
+      if (data.actionable_next_step) {
+        aiReply += `\n💡 Επόμενο βήμα: ${data.actionable_next_step}`;
+      }
+    }
+
+    setChatMessages(prev => [...prev, { role: 'ai', text: aiReply }]);
+  } catch (error) {
+    console.error(error);
+    setChatMessages(prev => [...prev, { role: 'ai', text: "⚠️ Σφάλμα σύνδεσης. Βεβαιώσου ότι το FastAPI τρέχει (localhost:8000)." }]);
+  } finally {
+    setIsAiLoading(false);
+  }
+};
 
  const handleRestart = () => {
  setScores({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 });
@@ -857,6 +905,23 @@ function ViewAITest() {
  </div>
  </div>
  ))}
+
+ {/* LOADING UI */}
+ {isAiLoading && (
+    <div className="flex items-start max-w-[85%] animate-in fade-in">
+    <div className="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center mr-3 mt-1 flex-shrink-0 animate-pulse">
+        <BrainCircuit className="w-4 h-4 text-orange-500" />
+    </div>
+    <div className="p-4 rounded-2xl shadow-sm font-medium bg-white border border-gray-100 text-gray-500 rounded-tl-sm flex items-center space-x-2">
+        <span className="animate-pulse">Το AI αναλύει τα δεδομένα</span>
+        <div className="flex space-x-1">
+        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+        </div>
+    </div>
+    </div>
+ )}
  </div>
 
  <div className="p-4 bg-white border-t border-gray-100">
@@ -1349,7 +1414,4 @@ function ViewB2BAdmin() {
  </div>
  );
 }
-
-
-
 
