@@ -1,0 +1,129 @@
+{
+  "university_departments": [
+    {
+      "department_id": "det_aueb",
+      "name": "Διοικητικής Επιστήμης και Τεχνολογίας",
+      "university": "ΟΠΑ (AUEB)",
+      "graduation_rate": 78.5,
+      "employment_rate_6m": 92.4,
+      "theory_vs_lab_ratio": {
+        "theory": 40,
+        "lab": 60
+      },
+      "base_points_history": [
+        {
+          "year": 2019,
+          "points": 17950
+        },
+        {
+          "year": 2020,
+          "points": 18200
+        },
+        {
+          "year": 2021,
+          "points": 18450
+        },
+        {
+          "year": 2022,
+          "points": 18100
+        },
+        {
+          "year": 2023,
+          "points": 18350
+        }
+      ]
+    },
+    {
+      "department_id": "cs_ekpa",
+      "name": "Πληροφορικής και Τηλεπικοινωνιών",
+      "university": "ΕΚΠΑ",
+      "graduation_rate": 65.2,
+      "employment_rate_6m": 88.7,
+      "theory_vs_lab_ratio": {
+        "theory": 60,
+        "lab": 40
+      },
+      "base_points_history": [
+        {
+          "year": 2019,
+          "points": 17150
+        },
+        {
+          "year": 2020,
+          "points": 17400
+        },
+        {
+          "year": 2021,
+          "points": 17650
+        },
+        {
+          "year": 2022,
+          "points": 17300
+        },
+        {
+          "year": 2023,
+          "points": 17550
+        }
+      ]
+    },
+    {
+      "department_id": "ece_ntua",
+      "name": "Ηλεκτρολόγων Μηχανικών και Μηχανικών Υπολογιστών",
+      "university": "ΕΜΠ (NTUA)",
+      "graduation_rate": 55.4,
+      "employment_rate_6m": 95.1,
+      "theory_vs_lab_ratio": {
+        "theory": 50,
+        "lab": 50
+      },
+      "base_points_history": [
+        {
+          "year": 2019,
+          "points": 18300
+        },
+        {
+          "year": 2020,
+          "points": 18450
+        },
+        {
+          "year": 2021,
+          "points": 18850
+        },
+        {
+          "year": 2022,
+          "points": 18600
+        },
+        {
+          "year": 2023,
+          "points": 18800
+        }
+      ]
+    }
+  ],
+  "real_estate_costs": [
+    {
+      "location_id": "athens_zografou",
+      "city": "Αθήνα",
+      "neighborhood": "Ζωγράφου",
+      "avg_rent_under_50sqm": 450,
+      "avg_living_cost_monthly": 350,
+      "safety_score": 4.1
+    },
+    {
+      "location_id": "patras_center",
+      "city": "Πάτρα",
+      "neighborhood": "Κέντρο",
+      "avg_rent_under_50sqm": 320,
+      "avg_living_cost_monthly": 280,
+      "safety_score": 4.5
+    },
+    {
+      "location_id": "thessaloniki_kentro",
+      "city": "Θεσσαλονίκη",
+      "neighborhood": "Κέντρο",
+      "avg_rent_under_50sqm": 400,
+      "avg_living_cost_monthly": 320,
+      "safety_score": 4.0
+    }
+  ]
+}

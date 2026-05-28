@@ -1,0 +1,72 @@
+[
+  {
+    "departmentName": "Διοικητικής Επιστήμης & Τεχνολογίας (ΔΕΤ)",
+    "institution": "ΟΠΑ",
+    "yearsToGraduate": 4,
+    "basePoints2024": 18175,
+    "graduationRateNPlus2": 75,
+    "employmentRate": 92,
+    "curriculumStats": {
+      "theory": 50,
+      "lab": 50
+    },
+    "marketWarning": "High demand, excellent tech/business bridge.",
+    "coordinates": { "lat": 37.9944, "lng": 23.7322 }
+  },
+  {
+    "departmentName": "Ηλεκτρολόγων Μηχανικών & Μηχανικών Υπολογιστών (ΗΜΜΥ)",
+    "institution": "ΕΜΠ",
+    "yearsToGraduate": 5,
+    "basePoints2024": 18820,
+    "graduationRateNPlus2": 45,
+    "employmentRate": 95,
+    "curriculumStats": {
+      "theory": 60,
+      "lab": 40
+    },
+    "marketWarning": "Very tough curriculum, high risk of delayed graduation, huge global demand.",
+    "coordinates": { "lat": 37.9754, "lng": 23.7820 }
+  },
+  {
+    "departmentName": "Ιατρική",
+    "institution": "ΕΚΠΑ",
+    "yearsToGraduate": 6,
+    "basePoints2024": 18900,
+    "graduationRateNPlus2": 85,
+    "employmentRate": 98,
+    "curriculumStats": {
+      "theory": 40,
+      "lab": 60
+    },
+    "marketWarning": "Long path to specialization, high brain-drain rates.",
+    "coordinates": { "lat": 37.9686, "lng": 23.7661 }
+  },
+  {
+    "departmentName": "Νομική",
+    "institution": "ΕΚΠΑ",
+    "yearsToGraduate": 4,
+    "basePoints2024": 18125,
+    "graduationRateNPlus2": 60,
+    "employmentRate": 65,
+    "curriculumStats": {
+      "theory": 95,
+      "lab": 5
+    },
+    "marketWarning": "Oversaturated domestic market, low starting pay during practice.",
+    "coordinates": { "lat": 37.9806, "lng": 23.7360 }
+  },
+  {
+    "departmentName": "Οδοντιατρική",
+    "institution": "ΕΚΠΑ",
+    "yearsToGraduate": 5,
+    "basePoints2024": 18200,
+    "graduationRateNPlus2": 80,
+    "employmentRate": 88,
+    "curriculumStats": {
+      "theory": 30,
+      "lab": 70
+    },
+    "marketWarning": "High initial capital required for private practice.",
+    "coordinates": { "lat": 37.9816, "lng": 23.7651 }
+  }
+]

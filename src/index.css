@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
+}
+
+html, body, p, h1, h2, h3, h4, span, div {
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif !important;
+  font-feature-settings: "kern" 1 !important;
+  font-variant-ligatures: common-ligatures !important;
+  letter-spacing: normal !important;
+  word-break: keep-all !important;
+}

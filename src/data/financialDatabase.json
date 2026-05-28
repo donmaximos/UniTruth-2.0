@@ -1,0 +1,52 @@
+[
+  {
+    "cityName": "Αθήνα",
+    "neighborhood": "Ζωγράφου",
+    "avgRent": 450,
+    "monthlyLivingCost": 350,
+    "transportCost": 30,
+    "safetyScore": 4.1,
+    "coordinates": { "lat": 37.9734, "lng": 23.7686 },
+    "travelTimeMinutes": { "publicTransit": 35, "privateVehicle": 15 }
+  },
+  {
+    "cityName": "Αθήνα",
+    "neighborhood": "Παγκράτι",
+    "avgRent": 500,
+    "monthlyLivingCost": 380,
+    "transportCost": 20,
+    "safetyScore": 4.6,
+    "coordinates": { "lat": 37.9679, "lng": 23.7460 },
+    "travelTimeMinutes": { "publicTransit": 25, "privateVehicle": 12 }
+  },
+  {
+    "cityName": "Αθήνα",
+    "neighborhood": "Κυψέλη",
+    "avgRent": 350,
+    "monthlyLivingCost": 300,
+    "transportCost": 40,
+    "safetyScore": 3.5,
+    "coordinates": { "lat": 38.0039, "lng": 23.7402 },
+    "travelTimeMinutes": { "publicTransit": 15, "privateVehicle": 8 }
+  },
+  {
+    "cityName": "Πάτρα",
+    "neighborhood": "Κέντρο",
+    "avgRent": 320,
+    "monthlyLivingCost": 280,
+    "transportCost": 15,
+    "safetyScore": 4.5,
+    "coordinates": { "lat": 38.2466, "lng": 21.7346 },
+    "travelTimeMinutes": { "publicTransit": 20, "privateVehicle": 10 }
+  },
+  {
+    "cityName": "Πάτρα",
+    "neighborhood": "Αγυιά",
+    "avgRent": 280,
+    "monthlyLivingCost": 250,
+    "transportCost": 25,
+    "safetyScore": 4.2,
+    "coordinates": { "lat": 38.2618, "lng": 21.7458 },
+    "travelTimeMinutes": { "publicTransit": 30, "privateVehicle": 15 }
+  }
+]

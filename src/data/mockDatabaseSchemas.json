@@ -1,0 +1,91 @@
+{
+  "University_HAHE_Schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "University Academic Metrics (HAHE Logic)",
+    "type": "object",
+    "properties": {
+      "departmentId": {
+        "type": "string",
+        "description": "Unique identifier for the department (e.g., 'det_aueb')"
+      },
+      "departmentName": {
+        "type": "string"
+      },
+      "institution": {
+        "type": "string"
+      },
+      "city": {
+        "type": "string"
+      },
+      "yearsToGraduate": {
+        "type": "number",
+        "description": "The typical duration of studies in years"
+      },
+      "basePointsHistory": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "year": { "type": "number" },
+            "points": { "type": "number" }
+          }
+        }
+      },
+      "graduationRateNPlus2": {
+        "type": "number",
+        "description": "Percentage of students graduating within nominal duration + 2 years"
+      },
+      "employmentRate6m": {
+        "type": "number",
+        "description": "Percentage of students finding relevant employment within 6 months of graduation"
+      },
+      "curriculumStats": {
+        "type": "object",
+        "properties": {
+          "theory": { "type": "number" },
+          "lab": { "type": "number" }
+        }
+      },
+      "marketWarning": {
+        "type": "string",
+        "description": "Brief text assessing the job market potential"
+      }
+    },
+    "required": ["departmentId", "departmentName", "institution", "graduationRateNPlus2"]
+  },
+  "RentalMarket_Spitogatos_Schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Student Rental Market Index (Spitogatos Logic)",
+    "type": "object",
+    "properties": {
+      "cityId": {
+        "type": "string"
+      },
+      "cityName": {
+        "type": "string"
+      },
+      "neighborhoods": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "description": "Name of the neighborhood, e.g., 'Ζωγράφου - Ιλίσια'" },
+            "avgRentUnder50sqm": {
+              "type": "number",
+              "description": "Average rent for student apartments under 50 sq.m."
+            },
+            "avgMonthlyLivingCost": {
+              "type": "number",
+              "description": "Estimated living cost minus rent"
+            },
+            "transportCost": {
+              "type": "number",
+              "description": "Estimated monthly transport cost to the nearest university campus"
+            }
+          }
+        }
+      }
+    },
+    "required": ["cityId", "cityName", "neighborhoods"]
+  }
+}
