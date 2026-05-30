@@ -13,6 +13,9 @@ import FamilyLinkWidget from './components/FamilyLinkWidget';
 import ParentFinancialDashboard from './components/ParentFinancialDashboard';
 import universitiesDatabase from './data/universitiesDatabase.json';
 
+// Import Supabase Client
+import { supabase } from './supabaseClient';
+
 export type UserRole = 'student' | 'parent' | 'b2b';
 export type Tab = 'ai-test' | 'school-search' | 'mentors' | 'parent-dash' | 'b2b-admin' | 'link-child' | 'link-parent' | 'b2b-mentoring';
 
@@ -23,7 +26,7 @@ const MOCK_STUDENTS_B2B = [
   { id: 4, name: "Μαρία Σ.", match: "Ιατρική ΕΚΠΑ", score: "96%", status: "Ready" }
 ];
 
-function ViewLanding({ onComplete }: { onComplete: (role: UserRole) => void }) {
+function ViewLanding({ onComplete }: { onComplete: (role: UserRole, user_id?: string | null) => void }) {
   const [activePersona, setActivePersona] = useState<UserRole | null>(null);
   const [step, setStep] = useState(0);
 
@@ -40,6 +43,16 @@ function ViewLanding({ onComplete }: { onComplete: (role: UserRole) => void }) {
 
   const updateForm = (key: string, value: string) => setFormData(prev => ({ ...prev, [key]: value }));
   const parentCode = "UN9K2A";
+  
+  // Auth States
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [signedUpUserId, setSignedUpUserId] = useState<string | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+  const [showSignInForm, setShowSignInForm] = useState(false);
 
   const getHeroContent = () => {
     return { title: "Ο απόλυτος οδηγός επιλογής σχολής", desc: "Σταμάτα να μαντεύεις το μέλλον σου, ρωτά αυτούς που το ζουν ήδη." };
@@ -194,15 +207,96 @@ function ViewLanding({ onComplete }: { onComplete: (role: UserRole) => void }) {
 
  {step === 1 && (
  <div className="space-y-4 animate-in slide-in-from-right-4">
- <button onClick={() => setStep(2)} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center">
- Συνέχεια με Email
- </button>
- <button onClick={() => setStep(2)} className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-slate-800 font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center">
- Συνέχεια με Google
- </button>
- <div className="text-center pt-2">
- <button onClick={() => onComplete('student')} className="text-sm font-bold text-gray-500 hover:text-orange-600">Έχω ήδη λογαριασμό (Σύνδεση)</button>
- </div>
+ {!showEmailForm && !showSignInForm ? (
+   <>
+     <button onClick={() => setShowEmailForm(true)} className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center">
+       Συνέχεια με Email
+     </button>
+     <button className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-slate-800 font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center">
+      Συνέχεια με Google
+     </button>
+     <div className="text-center pt-2">
+       <button onClick={() => setShowSignInForm(true)} className="text-sm font-bold text-gray-500 hover:text-orange-600">Έχω ήδη λογαριασμό (Σύνδεση)</button>
+     </div>
+   </>
+ ) : showEmailForm ? (
+   <div className="space-y-3">
+     <label className="text-sm font-bold text-gray-500 uppercase block">Email</label>
+     <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-slate-50 border border-gray-200 text-[#1e293b] font-bold rounded-xl px-4 py-3 outline-none focus:border-orange-600" />
+     <label className="text-sm font-bold text-gray-500 uppercase block">Κωδικός</label>
+     <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-50 border border-gray-200 text-[#1e293b] font-bold rounded-xl px-4 py-3 outline-none focus:border-orange-600" />
+    {authError && <p className="text-sm text-rose-600 mt-1">{authError}</p>}
+     <div className="flex gap-2 mt-4">
+      <button disabled={!email || !password || isAuthLoading} onClick={async () => {
+        setAuthError(null);
+        setIsAuthLoading(true);
+        try {
+          // ΜΟΝΟ SIGN UP ΕΔΩ (Όχι Profile Insert)
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          
+          const userId = data?.user?.id || null;
+          if (userId) {
+              setSignedUpUserId(userId);
+              setStep(2); // Προχωράμε στην επόμενη ερώτηση
+          } else {
+              setAuthError('Σφάλμα: Δεν επεστράφη UUID από το Supabase.');
+          }
+        } catch (err: any) {
+          console.error(err);
+          setAuthError(err?.message || 'Σφάλμα κατά την εγγραφή.');
+        } finally {
+          setIsAuthLoading(false);
+        }
+      }} className="flex-1 bg-orange-600 text-white font-bold py-3.5 rounded-xl disabled:bg-gray-200 flex justify-center items-center">
+        {isAuthLoading ? <Clock className="w-5 h-5 animate-spin" /> : 'Δημιουργία'}
+      </button>
+       <button onClick={() => setShowEmailForm(false)} className="flex-1 bg-white border border-gray-200 text-slate-800 font-bold py-3.5 rounded-xl">Άκυρο</button>
+     </div>
+   </div>
+ ) : (
+   <div className="space-y-3">
+     <h3 className="text-lg font-bold text-[#1e293b]">Σύνδεση Λογαριασμού</h3>
+     <label className="text-sm font-bold text-gray-500 uppercase block">Email</label>
+     <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-slate-50 border border-gray-200 text-[#1e293b] font-bold rounded-xl px-4 py-3 outline-none focus:border-orange-600" />
+     <label className="text-sm font-bold text-gray-500 uppercase block">Κωδικός</label>
+     <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-50 border border-gray-200 text-[#1e293b] font-bold rounded-xl px-4 py-3 outline-none focus:border-orange-600" />
+     {authError && <p className="text-sm text-rose-600 mt-1">{authError}</p>}
+     <div className="flex gap-2 mt-4">
+       <button disabled={!email || !password || isAuthLoading} onClick={async () => {
+         setAuthError(null);
+         setIsAuthLoading(true);
+         try {
+           const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+           if (error) throw error;
+           
+           const userId = data?.user?.id || null;
+           setSignedUpUserId(userId);
+           
+           // Fetch profile to prefill
+           if (userId) {
+             const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+             if (profile) {
+               updateForm('grade', profile.grade || '');
+               updateForm('direction', profile.direction || '');
+               updateForm('scientificField', profile.scientific_field || '');
+               updateForm('city', profile.city || '');
+             }
+           }
+           onComplete('student', userId);
+         } catch (err: any) {
+           console.error(err);
+           setAuthError(err?.message || 'Λάθος κωδικός ή email.');
+         } finally {
+           setIsAuthLoading(false);
+         }
+       }} className="flex-1 bg-[#1e293b] text-white font-bold py-3.5 rounded-xl disabled:bg-gray-200 flex justify-center items-center">
+           {isAuthLoading ? <Clock className="w-5 h-5 animate-spin" /> : 'Είσοδος'}
+       </button>
+       <button onClick={() => setShowSignInForm(false)} className="flex-1 bg-white border border-gray-200 text-slate-800 font-bold py-3.5 rounded-xl">Άκυρο</button>
+     </div>
+   </div>
+ )}
  </div>
  )}
 
@@ -256,7 +350,34 @@ function ViewLanding({ onComplete }: { onComplete: (role: UserRole) => void }) {
  <option value="Ηράκλειο" />
  <option value="Βόλος" />
  </datalist>
- <button disabled={!formData.city} onClick={() => setStep(5)} className="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl disabled:bg-gray-200 mt-4">Ολοκλήρωση Προφίλ</button>
+ {authError && <p className="text-sm text-rose-600 mt-1">{authError}</p>}
+ <button disabled={!formData.city || isAuthLoading} onClick={async () => {
+    setIsAuthLoading(true);
+    setAuthError(null);
+    try {
+        // ΕΔΩ ΓΙΝΕΤΑΙ ΤΟ ΜΟΝΑΔΙΚΟ PROFILE INSERT
+        if (signedUpUserId) {
+            const insertData = {
+                id: signedUpUserId,
+                role: 'student',
+                grade: formData.grade || null,
+                direction: formData.grade === 'b' ? formData.direction : null,
+                scientific_field: formData.grade === 'c' ? formData.scientificField : null,
+                city: formData.city || null
+            };
+            const { error } = await supabase.from('profiles').upsert([insertData]);
+            if (error) throw error;
+        }
+        setStep(5);
+    } catch (err: any) {
+        console.error(err);
+        setAuthError('Σφάλμα αποθήκευσης προφίλ: ' + err.message);
+    } finally {
+        setIsAuthLoading(false);
+    }
+ }} className="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl disabled:bg-gray-200 mt-4 flex justify-center items-center">
+    {isAuthLoading ? <Clock className="w-5 h-5 animate-spin" /> : 'Ολοκλήρωση Προφίλ'}
+ </button>
  </div>
  )}
 
@@ -271,8 +392,8 @@ function ViewLanding({ onComplete }: { onComplete: (role: UserRole) => void }) {
  <p className="text-sm font-bold text-slate-400 uppercase mb-1">Parent Link Code</p>
  <p className="text-3xl font-extrabold text-[#1e293b]">{parentCode}</p>
  </div>
- <button onClick={() => onComplete('student')} className="w-full bg-[#1e293b] text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center group mt-4">
- Μετάβαση στην Εφαρμογή <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1" />
+ <button onClick={() => onComplete('student', signedUpUserId)} className="w-full bg-[#1e293b] text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center group mt-4">
+  Μετάβαση στην Εφαρμογή <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1" />
  </button>
  </div>
  )}
@@ -406,12 +527,14 @@ function ViewLanding({ onComplete }: { onComplete: (role: UserRole) => void }) {
 }
 
 export default function App() {
+ const [userId, setUserId] = useState<string | null>(null);
  const [userRole, setUserRole] = useState<UserRole | null>(null);
  const [activeTab, setActiveTab] = useState<Tab>('ai-test');
 
  if (!userRole) {
- return <ViewLanding onComplete={(role) => {
+ return <ViewLanding onComplete={(role, user_id) => {
  setUserRole(role);
+ setUserId(user_id || null);
  if (role === 'student') setActiveTab('ai-test');
  if (role === 'parent') setActiveTab('parent-dash');
  if (role === 'b2b') setActiveTab('b2b-admin');
@@ -419,11 +542,11 @@ export default function App() {
  }
 
  return (
- <DashboardLayout role={userRole} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setUserRole(null)} />
+ <DashboardLayout role={userRole} userId={userId} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setUserRole(null)} />
  );
 }
 
-function DashboardLayout({ role, activeTab, setActiveTab, onLogout }: { role: UserRole, activeTab: Tab, setActiveTab: (tab: Tab) => void, onLogout: () => void }) {
+function DashboardLayout({ role, userId, activeTab, setActiveTab, onLogout }: { role: UserRole, userId: string | null, activeTab: Tab, setActiveTab: (tab: Tab) => void, onLogout: () => void }) {
  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
  
  let sidebarItems = [];
@@ -532,7 +655,7 @@ function DashboardLayout({ role, activeTab, setActiveTab, onLogout }: { role: Us
  {/* Main Content */}
  <main className="flex-1 h-full overflow-y-auto w-full relative pt-16 md:pt-0 pb-20 md:pb-0">
  <div className="max-w-6xl mx-auto p-4 md:p-10 min-h-full">
- {activeTab === 'ai-test' && <ViewAITest />}
+ {activeTab === 'ai-test' && <ViewAITest userId={userId} />}
  {activeTab === 'school-search' && <ViewStudentDash />}
  {activeTab === 'parent-dash' && <ViewParentDash />}
  {activeTab === 'mentors' && <ViewMentors />}
@@ -624,7 +747,7 @@ const RIASEC_QUESTIONS = [
  { cat: 'C', text: "Δουλεύω καλύτερα με τάξη, σαφή δομή, λίστες και κανόνες οργάνωσης δεδομένων." },
 ];
 
-function ViewAITest() {
+function ViewAITest({ userId }: { userId: string | null }) {
  const [step, setStep] = useState<'intro' | 'test' | 'calculating' | 'chat'>('intro');
  const [qIndex, setQIndex] = useState(0);
  const [scores, setScores] = useState<Record<string, number>>({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 });
@@ -633,7 +756,6 @@ function ViewAITest() {
  const [chatInput, setChatInput] = useState('');
  const [userPoints, setUserPoints] = useState('');
  
- // State για την παρακολούθηση της κλήσης του AI Server
  const [isAiLoading, setIsAiLoading] = useState(false);
 
  const handleAnswer = (val: number) => {
@@ -645,7 +767,6 @@ function ViewAITest() {
  setQIndex(prev => prev + 1);
  } else {
  setStep('calculating');
- // trigger calculation
  setTimeout(() => {
  const sorted = Object.entries(newScores).sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 3);
  const top = sorted.map(s => RIASEC_MAP[s[0] as keyof typeof RIASEC_MAP] || RIASEC_MAP[s[0]]);
@@ -670,7 +791,6 @@ function ViewAITest() {
  setStep('chat');
  };
 
- // Η πραγματική κλήση προς το FastAPI backend
  const handleSendMessage = async () => {
   if (!chatInput.trim()) return;
   const userText = chatInput;
@@ -679,49 +799,47 @@ function ViewAITest() {
   setIsAiLoading(true);
 
   try {
-      const payload = { 
-        student_data: `Συνομιλία μαθητή: "${userText}". Μόρια μαθητή: ${userPoints || 'Άγνωστα'}.` 
-      };
-      console.log("Δεδομένα που στέλνονται:", payload);
+    const payload = {
+      user_id: userId,
+      raw_scores: scores,
+      user_points: userPoints ? parseInt(userPoints) : null,
+      chat_history: userText
+    };
 
-      const response = await fetch('http://localhost:8000/api/generate-report', {
-        method: 'POST',
-        headers: { 
-          'Accept': 'application/json',
-          'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify(payload)
-      });
+    const response = await fetch('http://localhost:8000/api/generate-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-      if (!response.ok) {
-        // Διαβάζουμε το ακριβές μήνυμα (detail) του FastAPI
-        const errorDetails = await response.text();
-        console.error("Ανάλυση Σφάλματος Backend:", errorDetails);
-        throw new Error(`HTTP ${response.status} - ${errorDetails}`);
-      }
-      
-      const data = await response.json();
+    if (!response.ok) {
+      const serverError = await response.text();
+      throw new Error(`Server returned error: ${serverError}`);
+    }
+
+    const resData = await response.json();
     
     let aiReply = "";
-    if (data.raw_text) {
-      aiReply = data.raw_text;
-    } else {
-      aiReply = `${data.psychometric_analysis}\n\n`;
-      if (data.top_matches && data.top_matches.length > 0) {
-        aiReply += `🎯 Προτεινόμενες Σχολές:\n`;
-        data.top_matches.forEach((m: any) => {
+    if (resData.status === "success") {
+      const aiData = resData.data;
+      aiReply = `${aiData.psychometric_analysis}\n\n`;
+      if (aiData.top_matches && aiData.top_matches.length > 0) {
+        aiReply += `🎯 Προτεινόμενες Σχολές (Καταγράφηκαν στη βάση):\n`;
+        aiData.top_matches.forEach((m: any) => {
           aiReply += `• ${m.title}: ${m.reasoning}\n`;
         });
       }
-      if (data.actionable_next_step) {
-        aiReply += `\n💡 Επόμενο βήμα: ${data.actionable_next_step}`;
+      if (aiData.actionable_next_step) {
+        aiReply += `\n💡 Επόμενο βήμα: ${aiData.actionable_next_step}`;
       }
+    } else if (resData.raw_text) {
+      aiReply = resData.raw_text;
     }
 
     setChatMessages(prev => [...prev, { role: 'ai', text: aiReply }]);
   } catch (error) {
     console.error(error);
-    setChatMessages(prev => [...prev, { role: 'ai', text: "⚠️ Σφάλμα σύνδεσης. Βεβαιώσου ότι το FastAPI τρέχει (localhost:8000)." }]);
+    setChatMessages(prev => [...prev, { role: 'ai', text: "⚠️ Αποτυχία επικοινωνίας με τον AI Orchestrator. Ελέγξτε τα logs του server.py." }]);
   } finally {
     setIsAiLoading(false);
   }
