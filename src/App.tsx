@@ -806,12 +806,14 @@ function ViewAITest({ userId }: { userId: string | null }) {
       chat_history: userText
     };
 
-    const response = await fetch('http://localhost:8000/api/generate-report', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
+    // ΠΡΟΣΕΞΕ: ΔΕΝ ΥΠΑΡΧΕΙ http:// ΟΥΤΕ localhost ΕΔΩ!
+const response = await fetch('/api/generate-report', {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+});
     if (!response.ok) {
       const serverError = await response.text();
       throw new Error(`Server returned error: ${serverError}`);
